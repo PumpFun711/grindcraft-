@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GrindCraft $GC — Mine. Earn. Grind.</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --green:#00ff88;
+  --green-dark:#00cc66;
+  --gold:#ffd700;
+  --bg:#0a0a14;
+}
+html,body{width:100%;height:100%;overflow-x:hidden;font-family:'Segoe UI',system-ui,sans-serif;}
+
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;height:56px;
+  background:rgba(8,8,18,0.75);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(0,255,136,0.12);
+}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo-icon{font-size:22px;}
+.nav-logo-text{font-family:'Courier New',monospace;font-weight:900;font-size:18px;color:#fff;letter-spacing:3px;}
+.nav-logo-text span{color:var(--green);}
+.nav-badge{background:rgba(0,255,136,0.15);border:1px solid rgba(0,255,136,0.3);color:var(--green);font-size:10px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:1px;}
+.nav-links{display:flex;align-items:center;gap:28px;}
+.nav-links a{color:rgba(255,255,255,0.65);text-decoration:none;font-size:14px;letter-spacing:.5px;transition:color .2s;}
+.nav-links a:hover{color:#fff;}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.btn-wallet{background:var(--green);color:#000;border:none;padding:9px 22px;border-radius:4px;font-weight:800;font-size:13px;letter-spacing:1px;cursor:pointer;transition:background .2s,transform .1s;}
+.btn-wallet:hover{background:var(--green-dark);}
+.nav-icon{color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer;text-decoration:none;transition:color .2s;}
+.nav-icon:hover{color:#fff;}
+
+#hero{position:relative;width:100%;height:100vh;overflow:hidden;background:#2d5a1e;}
+#iso-canvas{position:absolute;inset:0;width:100%;height:100%;}
+.hero-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.5) 55%, rgba(0,0,0,0.88) 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding-top:56px;
+}
+.hero-eyebrow{color:var(--green);font-size:11px;font-weight:700;letter-spacing:4px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+.hero-eyebrow::before,.hero-eyebrow::after{content:'';display:block;width:32px;height:1px;background:var(--green);opacity:.5;}
+.hero-title{font-family:'Courier New',monospace;font-size:clamp(52px,9vw,120px);font-weight:900;color:#fff;text-align:center;line-height:1;letter-spacing:6px;text-shadow:0 4px 40px rgba(0,0,0,0.8);margin-bottom:4px;}
+.hero-title-gc{color:var(--green);}
+.hero-sub{color:rgba(255,255,255,0.75);font-size:16px;text-align:center;max-width:460px;line-height:1.6;margin-bottom:32px;text-shadow:0 2px 12px rgba(0,0,0,0.8);}
+.hero-btns{display:flex;gap:12px;margin-bottom:28px;}
+.btn-play{background:var(--green);color:#000;border:none;padding:15px 44px;border-radius:5px;font-weight:900;font-size:16px;letter-spacing:1.5px;cursor:pointer;transition:background .2s,transform .1s;font-family:'Courier New',monospace;}
+.btn-play:hover{background:var(--green-dark);}
+.btn-spectate{background:rgba(255,255,255,0.08);color:#fff;border:1px solid rgba(255,255,255,0.25);padding:15px 32px;border-radius:5px;font-weight:700;font-size:15px;letter-spacing:1px;cursor:pointer;transition:background .2s;font-family:'Courier New',monospace;}
+.btn-spectate:hover{background:rgba(255,255,255,0.14);}
+.hero-stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;}
+.stat-pill{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.12);padding:6px 14px;border-radius:999px;font-size:13px;color:rgba(255,255,255,0.85);}
+.stat-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);}
+.stat-dot.gold{background:var(--gold);box-shadow:0 0 6px var(--gold);}
+.ca-pill{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.10);padding:6px 14px;border-radius:999px;font-size:11px;color:rgba(255,255,255,0.45);font-family:'Courier New',monospace;cursor:pointer;}
+.ca-pill:hover{color:rgba(255,255,255,0.75);}
+
+#how{padding:100px 40px;background:#0a0a14;}
+.section-label{color:var(--green);font-size:11px;font-weight:700;letter-spacing:4px;text-align:center;margin-bottom:12px;}
+.section-title{color:#fff;font-family:'Courier New',monospace;font-size:clamp(28px,4vw,44px);font-weight:900;text-align:center;margin-bottom:16px;letter-spacing:2px;}
+.section-sub{color:rgba(255,255,255,0.45);text-align:center;font-size:15px;max-width:480px;margin:0 auto 60px;line-height:1.7;}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;max-width:960px;margin:0 auto;}
+.step{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:28px 24px;}
+.step:hover{border-color:rgba(0,255,136,0.2);background:rgba(0,255,136,0.03);}
+.step-num{font-family:'Courier New',monospace;font-size:11px;color:rgba(0,255,136,0.5);font-weight:700;letter-spacing:2px;margin-bottom:12px;}
+.step-icon{font-size:28px;margin-bottom:12px;display:block;}
+.step-title{color:#fff;font-weight:700;font-size:16px;margin-bottom:8px;}
+.step-desc{color:rgba(255,255,255,0.45);font-size:13px;line-height:1.65;}
+
+#picks{padding:80px 40px;background:#070710;}
+.picks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;max-width:960px;margin:0 auto;}
+.pick-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:20px 16px;text-align:center;transition:transform .2s,border-color .2s;}
+.pick-card:hover{transform:translateY(-3px);}
+.pick-card.featured{border-color:rgba(0,255,136,0.4);background:rgba(0,255,136,0.05);}
+.pick-emoji{font-size:32px;margin-bottom:10px;display:block;}
+.pick-name{color:#fff;font-family:'Courier New',monospace;font-weight:700;font-size:14px;margin-bottom:4px;}
+.pick-cost{font-size:12px;margin-bottom:4px;}
+.pick-power{color:rgba(255,255,255,0.35);font-size:11px;}
+
+#blocks{padding:80px 40px;background:#0a0a14;}
+.blocks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;max-width:960px;margin:0 auto;}
+.block-card{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:12px 14px;}
+.block-swatch{width:32px;height:32px;border-radius:4px;flex-shrink:0;}
+.block-name{color:#fff;font-size:13px;font-weight:600;margin-bottom:2px;}
+.block-pts{font-size:11px;color:var(--gold);}
+.block-rare{font-size:10px;color:rgba(255,255,255,0.3);margin-top:1px;}
+
+#gate-section{padding:100px 40px;background:#070710;text-align:center;}
+.gate-card{max-width:440px;margin:0 auto;background:rgba(0,255,136,0.04);border:1px solid rgba(0,255,136,0.15);border-radius:10px;padding:40px 36px;}
+.gate-icon{font-size:40px;margin-bottom:16px;}
+.gate-title{color:#fff;font-family:'Courier New',monospace;font-size:22px;font-weight:900;margin-bottom:8px;letter-spacing:2px;}
+.gate-desc{color:rgba(255,255,255,0.5);font-size:14px;line-height:1.65;margin-bottom:28px;}
+.gate-amount{background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.2);border-radius:6px;padding:16px;margin-bottom:24px;}
+.gate-amount-num{color:var(--green);font-family:'Courier New',monospace;font-size:32px;font-weight:900;}
+.gate-amount-label{color:rgba(255,255,255,0.4);font-size:12px;margin-top:2px;}
+.btn-gate{width:100%;background:var(--green);color:#000;border:none;padding:15px;border-radius:5px;font-weight:900;font-size:15px;letter-spacing:1px;cursor:pointer;font-family:'Courier New',monospace;transition:background .2s;}
+.btn-gate:hover{background:var(--green-dark);}
+
+footer{background:#050508;border-top:1px solid rgba(255,255,255,0.06);padding:32px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.footer-logo{font-family:'Courier New',monospace;font-weight:900;color:#fff;font-size:16px;letter-spacing:3px;}
+.footer-logo span{color:var(--green);}
+.footer-links{display:flex;gap:24px;}
+.footer-links a{color:rgba(255,255,255,0.35);text-decoration:none;font-size:13px;transition:color .2s;}
+.footer-links a:hover{color:rgba(255,255,255,0.7);}
+.footer-copy{color:rgba(255,255,255,0.2);font-size:12px;}
+
+#modal-overlay{display:none;position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.85);backdrop-filter:blur(6px);align-items:center;justify-content:center;}
+#modal-overlay.open{display:flex;}
+.modal{background:#0e0e20;border:1px solid rgba(0,255,136,0.25);border-radius:10px;padding:36px;width:90%;max-width:400px;position:relative;}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:22px;cursor:pointer;}
+.modal-close:hover{color:#fff;}
+.modal h2{color:#fff;font-family:'Courier New',monospace;font-size:20px;font-weight:900;letter-spacing:2px;margin-bottom:6px;}
+.modal p{color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:22px;line-height:1.6;}
+.modal-field{margin-bottom:14px;}
+.modal-field label{display:block;color:rgba(255,255,255,0.5);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.modal-field input{width:100%;background:#080814;border:1px solid rgba(255,255,255,0.12);color:#fff;padding:11px 14px;border-radius:5px;font-family:'Courier New',monospace;font-size:13px;outline:none;}
+.modal-field input:focus{border-color:rgba(0,255,136,0.4);}
+.modal-req{background:rgba(0,255,136,0.07);border:1px solid rgba(0,255,136,0.15);border-radius:5px;padding:12px 14px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+.modal-req-label{color:rgba(255,255,255,0.4);font-size:12px;}
+.modal-req-val{color:var(--green);font-family:'Courier New',monospace;font-weight:700;font-size:14px;}
+.btn-modal{width:100%;background:var(--green);color:#000;border:none;padding:14px;border-radius:5px;font-weight:900;font-size:15px;letter-spacing:1px;cursor:pointer;font-family:'Courier New',monospace;}
+.btn-modal:hover{background:var(--green-dark);}
+.modal-err{color:#ff4444;font-size:12px;margin-top:10px;display:none;}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#0e0e20;border:1px solid rgba(0,255,136,0.3);color:#fff;font-size:13px;padding:12px 24px;border-radius:6px;font-family:'Courier New',monospace;z-index:9999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">
+    <span class="nav-logo-icon">⛏</span>
+    <span class="nav-logo-text">GRIND<span>CRAFT</span></span>
+    <span class="nav-badge">BETA</span>
+  </a>
+  <div class="nav-links">
+    <a href="#how">How to Play</a>
+    <a href="#picks">Pickaxes</a>
+    <a href="#gate-section">Token Gate</a>
+    <a href="#">Docs</a>
+  </div>
+  <div class="nav-right">
+    <a class="nav-icon" href="#" title="Discord">💬</a>
+    <a class="nav-icon" href="#" title="Telegram">✈️</a>
+    <button class="btn-wallet" onclick="openModal()">Connect Wallet</button>
+  </div>
+</nav>
+
+<section id="hero">
+  <canvas id="iso-canvas"></canvas>
+  <div class="hero-overlay">
+    <div class="hero-eyebrow">Powered by $GC on Solana</div>
+    <div class="hero-title">GRIND<span class="hero-title-gc">CRAFT</span></div>
+    <div class="hero-sub">A blockchain mining game where you hold $GC tokens, mine blocks, earn points, and upgrade your pickaxe to the legendary $GC tier.</div>
+    <div class="hero-btns">
+      <button class="btn-play" onclick="openModal()">▶ PLAY NOW</button>
+      <button class="btn-spectate" onclick="showToast('👁 Spectate mode coming soon!')">SPECTATE</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-pill"><div class="stat-dot"></div><span id="live-players">847 players online</span></div>
+      <div class="stat-pill"><div class="stat-dot gold"></div><span>12,400 players monthly</span></div>
+      <div class="ca-pill" onclick="copyCA()">CA: 7xGC...pump &nbsp;📋</div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="section-label">How it works</div>
+  <div class="section-title">MINE. EARN. GRIND.</div>
+  <div class="section-sub">Hold $GC tokens to unlock a server, pick your name, build your character, and start mining your way up the leaderboard.</div>
+  <div class="steps">
+    <div class="step"><div class="step-num">01</div><span class="step-icon">💎</span><div class="step-title">Hold 300K $GC</div><div class="step-desc">Buy and hold at least 300,000 $GC tokens on Solana. Connect your wallet to verify your balance and unlock server access.</div></div>
+    <div class="step"><div class="step-num">02</div><span class="step-icon">🎮</span><div class="step-title">Create Your Character</div><div class="step-desc">Choose your nickname, customize your skin, hair, shirt and pants. Your character is unique to you across all GrindCraft servers.</div></div>
+    <div class="step"><div class="step-num">03</div><span class="step-icon">⛏</span><div class="step-title">Mine & Earn Points</div><div class="step-desc">Click blocks to mine them. Rarer blocks deep underground give massive points. Different blocks need different pickaxe tiers.</div></div>
+    <div class="step"><div class="step-num">04</div><span class="step-icon">🏆</span><div class="step-title">Upgrade & Dominate</div><div class="step-desc">Spend your earned points on better pickaxes — all the way up to the legendary $GC Pickaxe. Climb the leaderboard in 60-player servers.</div></div>
+  </div>
+</section>
+
+<section id="picks">
+  <div class="section-label">Gear progression</div>
+  <div class="section-title">PICKAXE TIERS</div>
+  <div class="section-sub">Start with a wooden pickaxe and grind your way to the legendary $GC tier — the ultimate status symbol in GrindCraft.</div>
+  <div class="picks-grid" id="picks-grid"></div>
+</section>
+
+<section id="blocks">
+  <div class="section-label">What you'll mine</div>
+  <div class="section-title">BLOCK TYPES</div>
+  <div class="section-sub">13 unique blocks with different values, hardness, and rarity. $GC Ore is the holy grail — 500 points per block, found only deep underground.</div>
+  <div class="blocks-grid" id="blocks-grid"></div>
+</section>
+
+<section id="gate-section">
+  <div class="section-label">Token requirement</div>
+  <div class="section-title">HOLD TO PLAY</div>
+  <div class="section-sub">GrindCraft is exclusive to $GC holders. The more you hold, the more you grind.</div>
+  <div class="gate-card">
+    <div class="gate-icon">🔐</div>
+    <div class="gate-title">TOKEN GATE</div>
+    <div class="gate-desc">Connect your Solana wallet. Our system automatically checks your $GC balance before granting server access.</div>
+    <div class="gate-amount"><div class="gate-amount-num">300,000</div><div class="gate-amount-label">$GC minimum to enter any server</div></div>
+    <button class="btn-gate" onclick="openModal()">⛏ CONNECT & VERIFY</button>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">GRIND<span>CRAFT</span> <span style="color:rgba(255,255,255,0.2);font-size:12px">$GC</span></div>
+  <div class="footer-links"><a href="#">Twitter / X</a><a href="#">Telegram</a><a href="#">Discord</a><a href="#">Docs</a><a href="#">pumpfun</a></div>
+  <div class="footer-copy">GrindCraft — built by grinders, for grinders.</div>
+</footer>
+
+<div id="modal-overlay" onclick="closeModalOuter(event)">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <h2>⛏ CONNECT WALLET</h2>
+    <p>Verify your $GC balance to access a GrindCraft server. You need at least 300,000 $GC tokens.</p>
+    <div class="modal-req"><span class="modal-req-label">Minimum balance required</span><span class="modal-req-val">300,000 $GC</span></div>
+    <div class="modal-field"><label>Wallet address or token balance</label><input id="wallet-input" type="text" placeholder="Paste wallet address or enter token amount..."/></div>
+    <button class="btn-modal" onclick="verifyWallet()">VERIFY & ENTER WORLD</button>
+    <div class="modal-err" id="modal-err">❌ Insufficient $GC balance. Buy more tokens to play.</div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const PICKS=[
+  {name:'Wood',cost:'Free',power:'1×',color:'#c8a060',emoji:'🪵'},
+  {name:'Stone',cost:'80 pts',power:'2×',color:'#aaaaaa',emoji:'🪨'},
+  {name:'Iron',cost:'250 pts',power:'3.5×',color:'#d4d4d4',emoji:'⚙️'},
+  {name:'Gold',cost:'600 pts',power:'5×',color:'#ffd700',emoji:'✨'},
+  {name:'Diamond',cost:'1,800 pts',power:'9×',color:'#4fc3f7',emoji:'💎'},
+  {name:'$GC',cost:'6,000 pts',power:'20×',color:'#00ff88',emoji:'⛏',featured:true},
+];
+const BLOCKS=[
+  {name:'Dirt',color:'#8B6914',pts:1,rare:'Common'},
+  {name:'Grass',color:'#5a8c3e',pts:2,rare:'Common'},
+  {name:'Sand',color:'#d9c47a',pts:1,rare:'Common'},
+  {name:'Wood',color:'#a0714a',pts:3,rare:'Common'},
+  {name:'Stone',color:'#888888',pts:5,rare:'Uncommon'},
+  {name:'Coal',color:'#333333',pts:10,rare:'Uncommon'},
+  {name:'Iron Ore',color:'#c0896e',pts:20,rare:'Uncommon'},
+  {name:'Gold Ore',color:'#d4af37',pts:40,rare:'Rare'},
+  {name:'Redstone',color:'#cc2200',pts:30,rare:'Rare'},
+  {name:'Lapis',color:'#1a3db5',pts:35,rare:'Rare'},
+  {name:'Emerald',color:'#00b865',pts:80,rare:'Epic'},
+  {name:'Diamond',color:'#4fc3f7',pts:150,rare:'Epic'},
+  {name:'$GC Ore',color:'#00ff88',pts:500,rare:'Legendary'},
+];
+const RARE_COLORS={Common:'#888',Uncommon:'#4fc3f7',Rare:'#ffd700',Epic:'#aa44ff',Legendary:'#00ff88'};
+
+document.getElementById('picks-grid').innerHTML=PICKS.map(p=>`
+  <div class="pick-card${p.featured?' featured':''}">
+    <span class="pick-emoji">${p.emoji}</span>
+    <div class="pick-name" style="color:${p.color}">${p.name} Pickaxe</div>
+    <div class="pick-cost" style="color:${p.featured?'#00ff88':'rgba(255,255,255,0.5)'}">${p.cost}</div>
+    <div class="pick-power">Power: ${p.power}</div>
+  </div>`).join('');
+
+document.getElementById('blocks-grid').innerHTML=BLOCKS.map(b=>`
+  <div class="block-card">
+    <div class="block-swatch" style="background:${b.color};border:1px solid rgba(255,255,255,0.1)"></div>
+    <div><div class="block-name">${b.name}</div><div class="block-pts">+${b.pts} pts</div><div class="block-rare" style="color:${RARE_COLORS[b.rare]}">${b.rare}</div></div>
+  </div>`).join('');
+
+let base=847;
+setInterval(()=>{base+=Math.floor((Math.random()-.45)*3);base=Math.max(600,Math.min(1200,base));document.getElementById('live-players').textContent=base.toLocaleString()+' players online';},3000);
+
+function openModal(){document.getElementById('modal-overlay').classList.add('open');document.getElementById('modal-err').style.display='none';}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+function closeModalOuter(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+function verifyWallet(){
+  const v=document.getElementById('wallet-input').value.trim();
+  const n=parseFloat(v.replace(/[^0-9.]/g,''));
+  if(v.length>20||(!isNaN(n)&&n>=300000)){closeModal();showToast('✅ Wallet verified! Loading GrindCraft...');setTimeout(()=>showToast('🌍 Joining server GC-01 (12/60)...'),2200);}
+  else{document.getElementById('modal-err').style.display='block';}
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function copyCA(){navigator.clipboard.writeText('7xGCpump').catch(()=>{});showToast('📋 Contract address copied!');}
+
+// ═══════════════════════════════════════════════════
+// ISOMETRIC WORLD — PIXEL CHARACTER SPRITES
+// ═══════════════════════════════════════════════════
+(function(){
+  const canvas=document.getElementById('iso-canvas');
+  const ctx=canvas.getContext('2d');
+  ctx.imageSmoothingEnabled=false;
+  let W,H;
+  const TW=72,TH=36;
+  let tiles=[],chars=[],particles=[],t=0;
+
+  // Pixel character definitions — 8×16 pixel grid, drawn cell by cell
+  // Each char has: skin, hair, shirt, pants, boots, direction cycle
+  const CHAR_PRESETS=[
+    {skin:'#f4b07a',hair:'#3b2314',shirt:'#3a6bc7',pants:'#2a3a6e',boots:'#2a1a0a',name:'MineKing'},
+    {skin:'#d4956a',hair:'#111111',shirt:'#c73a3a',pants:'#2a2a2a',boots:'#1a1a1a',name:'GCHolder'},
+    {skin:'#8b5e3c',hair:'#4a2a0a',shirt:'#3ac76b',pants:'#1a3a1a',boots:'#0a1a0a',name:'DiamondD'},
+    {skin:'#fddbb4',hair:'#d4b483',shirt:'#c7973a',pants:'#3a2a1a',boots:'#1a0a0a',name:'PickMstr'},
+    {skin:'#c07840',hair:'#1a0a00',shirt:'#8b3ac7',pants:'#2a1a3a',boots:'#1a0a1a',name:'GrindBro'},
+    {skin:'#f4b07a',hair:'#cc2222',shirt:'#1a7a7a',pants:'#0a2a2a',boots:'#0a1a1a',name:'BlockBos'},
+    {skin:'#d4956a',hair:'#888888',shirt:'#444444',pants:'#222222',boots:'#111111',name:'StoneCut'},
+    {skin:'#fddbb4',hair:'#7b4f1f',shirt:'#5a2a7a',pants:'#2a1a4a',boots:'#1a0a2a',name:'OreHuntr'},
+  ];
+
+  // Draw a single pixel sprite character at canvas coords (cx, cy)
+  // scale: pixel size in canvas pixels
+  function drawPixelChar(cx, cy, preset, walkFrame, scale) {
+    const p = preset;
+    const f = walkFrame % 2; // 0 or 1 for walk cycle
+    const S = scale; // each pixel = S canvas pixels
+    // Helper: fill a rect of pixel dimensions
+    function px(col, row, w, h, color, alpha) {
+      if (alpha !== undefined) ctx.globalAlpha = alpha;
+      ctx.fillStyle = color;
+      ctx.fillRect(cx + col*S, cy + row*S, w*S, h*S);
+      if (alpha !== undefined) ctx.globalAlpha = 1;
+    }
+    function outline(col, row, w, h) {
+      ctx.strokeStyle = 'rgba(0,0,0,0.55)';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(cx + col*S + 0.5, cy + row*S + 0.5, w*S - 1, h*S - 1);
+    }
+
+    // Shadow
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(cx + 4*S, cy + 16*S, 4*S, 1.5*S, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // ── HAIR / HEAD TOP ──
+    px(1,0, 6,1, p.hair);          // hair top
+    px(0,1, 8,1, p.hair);          // hair row 2 wide
+    // ── HEAD ──
+    px(1,1, 6,4, p.skin);          // face
+    px(0,1, 1,3, p.hair);          // hair left side
+    px(7,1, 1,3, p.hair);          // hair right side
+    // Eyes
+    px(2,2, 1,1, '#1a0a00');       // left eye
+    px(5,2, 1,1, '#1a0a00');       // right eye
+    // Pupil shine
+    px(2,2, 1,1, '#ffffff', 0.35);
+    // Mouth
+    px(3,4, 2,1, '#8b3a3a');
+    // Ear
+    px(0,2, 1,2, p.skin);
+    px(7,2, 1,2, p.skin);
+    outline(1,0, 6,1);
+    outline(0,1, 8,5);
+
+    // ── NECK ──
+    px(3,5, 2,1, p.skin);
+
+    // ── TORSO ──
+    px(1,6, 6,5, p.shirt);
+    // Shirt detail — collar / center line
+    px(3,6, 2,1, shadeC(p.shirt,30));
+    px(3,7, 2,1, shadeC(p.shirt,-15));
+    // Arms
+    const armSwing = f === 0 ? 0 : 1;
+    // Left arm
+    px(0,6, 1,4, p.skin);
+    px(0,7+armSwing, 1,1, shadeC(p.skin,-10));
+    // Right arm
+    px(7,6, 1,4, p.skin);
+    px(7,6+armSwing, 1,1, shadeC(p.skin,-10));
+    // Pickaxe in right hand
+    px(8,7, 2,1, '#c8a060'); // handle
+    px(9,6, 1,1, '#aaaaaa'); // head
+    px(10,6, 1,1, '#888888');
+    outline(1,6, 6,5);
+
+    // ── BELT ──
+    px(1,11, 6,1, shadeC(p.pants,40));
+    px(3,11, 2,1, '#c8a060'); // buckle
+
+    // ── LEGS ──
+    const legSwing = f === 0 ? 0 : 1;
+    // Left leg
+    px(1,12, 3,4, p.pants);
+    if(legSwing) px(1,13, 2,1, shadeC(p.pants,-20));
+    // Right leg
+    px(4,12, 3,4, p.pants);
+    if(!legSwing) px(5,13, 2,1, shadeC(p.pants,-20));
+    outline(1,12, 3,4);
+    outline(4,12, 3,4);
+
+    // ── BOOTS ──
+    px(1,16, 3,2, p.boots);
+    px(4,16, 3,2, p.boots);
+    // Boot highlight
+    px(1,16, 3,1, shadeC(p.boots,25));
+    px(4,16, 3,1, shadeC(p.boots,25));
+    outline(1,16, 3,2);
+    outline(4,16, 3,2);
+  }
+
+  function shadeC(hex, amt) {
+    let r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+    r=Math.max(0,Math.min(255,r+amt)); g=Math.max(0,Math.min(255,g+amt)); b=Math.max(0,Math.min(255,b+amt));
+    return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+  }
+
+  // Tile colors
+  const TTYPES=[
+    {top:'#5a8c3e',sl:'#3d6128',sr:'#2e4d1e'},  // grass
+    {top:'#8B6914',sl:'#5a3f0a',sr:'#3d2a06'},  // dirt
+    {top:'#888888',sl:'#555555',sr:'#3a3a3a'},  // stone
+    {top:'#5a9e3e',sl:'#3d7128',sr:'#2e5a1e'},  // bright grass
+    {top:'#d9c47a',sl:'#a08840',sr:'#7a6428'},  // sand
+    {top:'#4a7a9b',sl:'#2a5a7a',sr:'#1a3a5a'},  // water
+  ];
+
+  function isoX(c,r){return W/2+(c-r)*(TW/2);}
+  function isoY(c,r){return H*0.38+(c+r)*(TH/2);}
+
+  function buildWorld(){
+    tiles=[]; chars=[];
+    const COLS=20,ROWS=20;
+    for(let r=0;r<ROWS;r++){
+      for(let c=0;c<COLS;c++){
+        const rnd=Math.random();
+        let type=0;
+        if(rnd<0.08) type=2;
+        else if(rnd<0.13) type=4;
+        else if(rnd<0.17) type=5;
+        else if(rnd<0.55) type=0;
+        else type=1;
+        const sp=rnd>0.9?'tree':rnd>0.95?'ore':rnd>0.975?'gc':null;
+        tiles.push({c,r,type,sp,phase:Math.random()*Math.PI*2});
+      }
+    }
+    // spawn chars
+    CHAR_PRESETS.forEach((preset,i)=>{
+      chars.push({
+        col:4+Math.random()*12, row:4+Math.random()*12,
+        dc:(Math.random()-.5)*0.018, dr:(Math.random()-.5)*0.018,
+        preset, frame:0, tick:0, walkTick:0,
+        scale:2 + Math.random()*0.5 | 0
+      });
+    });
+  }
+
+  function drawTile(ti,t){
+    const {c,r,type,sp,phase}=ti;
+    const x=isoX(c,r), y=isoY(c,r);
+    const T=TTYPES[type]||TTYPES[0];
+    const H2=TH*0.55;
+    // top
+    ctx.beginPath();
+    ctx.moveTo(x,y-TH/2);ctx.lineTo(x+TW/2,y);ctx.lineTo(x,y+TH/2);ctx.lineTo(x-TW/2,y);
+    ctx.closePath();
+    ctx.fillStyle=T.top; ctx.fill();
+    ctx.strokeStyle='rgba(0,0,0,0.12)'; ctx.lineWidth=0.5; ctx.stroke();
+    // left face
+    ctx.beginPath();ctx.moveTo(x-TW/2,y);ctx.lineTo(x,y+TH/2);ctx.lineTo(x,y+TH/2+H2);ctx.lineTo(x-TW/2,y+H2);ctx.closePath();
+    ctx.fillStyle=T.sl; ctx.fill(); ctx.strokeStyle='rgba(0,0,0,0.18)'; ctx.stroke();
+    // right face
+    ctx.beginPath();ctx.moveTo(x,y+TH/2);ctx.lineTo(x+TW/2,y);ctx.lineTo(x+TW/2,y+H2);ctx.lineTo(x,y+TH/2+H2);ctx.closePath();
+    ctx.fillStyle=T.sr; ctx.fill(); ctx.stroke();
+    // specials
+    if(sp==='tree') drawTree(x,y,t,phase);
+    if(sp==='ore') drawOreSpots(x,y,'#c0896e',t);
+    if(sp==='gc') drawOreSpots(x,y,'#00ff88',t,true);
+  }
+
+  function drawTree(x,y,t,phase){
+    // trunk — 3 pixel columns
+    ctx.fillStyle='#6b3d1a';
+    ctx.fillRect(x-4,y-TH/2-28,8,28);
+    // trunk shading
+    ctx.fillStyle='#4a2510';
+    ctx.fillRect(x+2,y-TH/2-28,3,28);
+    // canopy layers
+    const bob=Math.sin(t*0.7+phase)*1.8;
+    [[0,-64,32,26],[0,-50,26,20],[0,-38,20,14]].forEach(([dx,dy,w,h])=>{
+      // shadow layer
+      ctx.fillStyle='#1a4a1a';
+      ctx.fillRect(x+dx-w/2+2,y+dy+h*0.3+bob,w,h*0.5);
+      // main leaf
+      ctx.fillStyle='#2d7a2d';
+      ctx.fillRect(x+dx-w/2,y+dy+bob,w,h);
+      // highlight
+      ctx.fillStyle='#3a9a3a';
+      ctx.fillRect(x+dx-w/2,y+dy+bob,w,4);
+      ctx.fillRect(x+dx-w/2,y+dy+bob,4,h);
+    });
+  }
+
+  function drawOreSpots(x,y,color,t,glow){
+    if(glow){ctx.shadowColor=color;ctx.shadowBlur=8;}
+    ctx.fillStyle=color;
+    [[-12,-2],[8,-6],[2,4],[16,0],[-4,6],[10,5]].forEach(([dx,dy])=>{
+      ctx.fillRect(x+dx-2,y+dy-2,5,5);
+    });
+    if(glow) ctx.shadowBlur=0;
+  }
+
+  function resize(){
+    W=canvas.offsetWidth; H=canvas.offsetHeight;
+    canvas.width=W; canvas.height=H;
+    ctx.imageSmoothingEnabled=false;
+    buildWorld();
+  }
+
+  let lastWalk=0;
+  function loop(ts){
+    requestAnimationFrame(loop);
+    t+=0.018;
+    ctx.clearRect(0,0,W,H);
+
+    const sorted=[...tiles].sort((a,b)=>(a.c+a.r)-(b.c+b.r));
+    sorted.forEach(ti=>drawTile(ti,t));
+
+    // update & draw characters
+    chars.forEach(ch=>{
+      ch.col+=ch.dc; ch.row+=ch.dr;
+      if(ch.col<2||ch.col>17){ch.dc*=-1;}
+      if(ch.row<2||ch.row>17){ch.dr*=-1;}
+      ch.tick+=0.06;
+      ch.walkTick+=Math.abs(ch.dc)+Math.abs(ch.dr);
+      ch.frame=Math.floor(ch.walkTick*8)%2;
+
+      const cx=isoX(ch.col,ch.row);
+      const cy=isoY(ch.col,ch.row)-TH/2;
+      const S=ch.scale||2;
+      const bob=Math.sin(ch.tick*2)*1;
+      const charH=18*S; // total sprite height in pixels
+      const charW=11*S;
+
+      // name tag above character
+      ctx.globalAlpha=0.8;
+      const nm=ch.preset.name;
+      const twPx=nm.length*6+8;
+      ctx.fillStyle='rgba(0,0,0,0.55)';
+      ctx.fillRect(cx-twPx/2, cy-charH-14+bob, twPx, 13);
+      ctx.globalAlpha=1;
+      ctx.fillStyle='#00ff88';
+      ctx.font=`bold ${Math.max(7,S*3)}px 'Courier New',monospace`;
+      ctx.textAlign='center';
+      ctx.fillText(nm, cx, cy-charH-4+bob);
+      ctx.textAlign='left';
+
+      // draw the pixel sprite
+      drawPixelChar(cx-charW/2, cy-charH+bob, ch.preset, ch.frame, S);
+    });
+
+    // sparkle particles
+    if(Math.random()<0.05){
+      particles.push({x:Math.random()*W,y:Math.random()*H*0.75,life:1,vx:(Math.random()-.5)*0.6,vy:-0.5-Math.random()*0.4,color:Math.random()>.4?'#00ff88':'#ffd700',size:Math.random()>0.5?2:3});
+    }
+    particles=particles.filter(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.life-=0.01;
+      ctx.globalAlpha=p.life*0.7;
+      ctx.fillStyle=p.color;
+      ctx.fillRect(p.x,p.y,p.size,p.size);
+      ctx.globalAlpha=1;
+      return p.life>0;
+    });
+  }
+
+  window.addEventListener('resize',resize);
+  resize();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
